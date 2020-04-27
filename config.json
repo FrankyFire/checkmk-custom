@@ -1,0 +1,22 @@
+{
+	"lokal": {
+		"wiki-pfad": "~/sync",
+		"prefix-separator": "-"
+	},
+	"kunden": [
+		{
+			"name": "Superkunde",
+			"prefix": "skd",
+			"wiki-pfad": "~/sync",
+			"host": "127.0.0.1",
+			"benutzer": "siteuser"
+		},
+		{
+			"name": "Bester Kunde",
+			"prefix": "bkd",
+			"wiki-pfad": "~/sync2",
+			"host": "192.168.178.84",
+			"benutzer": "siteuser"
+		}
+	]
+}
