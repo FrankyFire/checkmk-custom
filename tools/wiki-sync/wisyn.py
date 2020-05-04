@@ -9,11 +9,11 @@
 ##### \_/\_/ |_|___/\__, |_| |_| ###
 ################### |___/ ##########
 ####################################
-#Wiki-Sync for Bechtle Service Desk#
+#    Wiki-Sync for Service Desks   #
 ####################################
 #                                  #
 # H4x0r: Sebastian Arndt           #
-# D4t3: Februar 2020               #
+# D4t3: Mai 2020                   #
 # D0cum3nt4t10n: Pfad/zur/Doku.pdf #
 #                                  #
 ####################################
@@ -21,9 +21,9 @@
 ####################################
 # Skript zur Ausführung im Service #
 # Desk.                            #
-# Dient der täglichen Synchronisa- #
+# Dient der gelmäßigen Synchronisa-#
 # tion der Wiki-Seiten von Kunden- #
-# zu Bechtle CheckMK Instanzen.    #
+# zu lokalen CheckMK Instanzen.    #
 ####################################
 
 import shutil       #Zum kopieren von Dateien
@@ -39,7 +39,7 @@ confDir = os.path.join(os.getcwd(), 'config.json')
 wikiDir = '~/var/dokuwiki/data/pages/'
 tmp = os.path.join(os.getcwd(), 'tmp/')
 
-# Eine Klasse Kunde, in der alle in der Konfiguration angegebenen Kunden hinterlegt werden.
+# Eine Klasse Kunde, in der alle Kunden, welche in der Konfiguration angegeben wurden, hinterlegt werden.
 class Customer:
     def __init__(self, name, prefix, dir, local_subdir, host, user):
         self.name = name                                # Kundenname
@@ -64,23 +64,24 @@ class Customer:
         ##################################################
         
         if to_temp: # Wenn in lokale wikiDir geschrieben wird (eingehnde Synchronisation)...
-            for path, subdirs, files in os.walk(os.path.normpath(tmp)):     # Alle Dateien in Pfad, inklusive Unterordnern, durchsuchen
-                for curpath in subdirs:
+            for path, subdirs, files in os.walk(os.path.normpath(tmp)):     # Alle Dateien in Pfad, inklusive Unterordner, durchsuchen
+                for curpath in subdirs:                                     # Unterordner umbenennen (Präfix anfügen)
                     newsubpath = self.prefix + separator + curpath
                     os.rename(os.path.join(path, curpath), os.path.join(path, newsubpath))
-                for name in files:
+                for name in files:                                          # Dateien umbenennen (Präfix anfügen)
                     name = os.path.basename(name)
                     os.rename(os.path.join(path, name), os.path.join(path, (self.prefix + separator + name))) # Präfix anfügen
-                os.system('cp -R ' + path + ' ' + os.path.basename(wikiDir))                     # Kopieren der Wiki-Einträge nach tmp
+                os.system('cp -R ' + path + ' ' + os.path.basename(wikiDir)) # Kopieren der Wiki-Einträge aus tmp in den realen Wiki-Ordner
             return 1
         else: # Wenn in Temp geschrieben wird...
             for path, subdirs, files in os.walk(os.path.normpath(wikiDir)):     # Alle Dateien in Pfad, inklusive Unterordnern, durchsuchen
                 search_string = self.prefix + separator
                 prefix_size = len(search_string)
-                for name in files:
-                    if name[:prefix_size] == search_string:                                         # Wenn der Dateiname das Präfix des Kunden enthält...
-                        os.system('cp ' + os.path.join(path, name) + ' ' + tmp)                  # Kopieren der Wiki-Einträge nach tmp
-                        os.rename(os.path.join(tmp, name), os.path.join(tmp, name[search_size:])) # Präfix entfernen
+                for curpath in subdirs:
+                    if curpath[:prefix_size] == search_string:                                         # Wenn der Dateiname das Präfix des Kunden enthält...
+                        os.system('cp ' + os.path.join(path, curpath) + ' ' + tmp)                  # Kopieren der Wiki-Einträge nach tmp
+                        print(curpath)
+                        os.rename(os.path.join(tmp, curpath), os.path.join(tmp, curpath[search_size:])) # Präfix entfernen
             print('Translation went wrong.')
             return 1
 
