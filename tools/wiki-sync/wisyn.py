@@ -63,28 +63,27 @@ class Customer:
         # - 0: Erfolg.                                   #
         ##################################################
         
-        if to_temp: # Wenn in lokale wikiDir geschrieben wird (eingehende Synchronisation)...
-            try:
-                for path, subdirs, files in os.walk(os.path.normpath(tmp)):     # Alle Dateien in Pfad, inklusive Unterordnern, durchsuchen
-                    for name in files:
-                        os.rename(os.path.join(path, name), os.path.join(path, (self.prefix + separator + name))) # Präfix anfügen
-                        os.system('cp -R ' + tmp + ' ' + os.path.join(wikDir, subdirs, name))                     # Kopieren der Wiki-Einträge nach tmp
-            except:
-                print('Translation went wrong.')
-                return 1
+        if to_temp: # Wenn in lokale wikiDir geschrieben wird (eingehnde Synchronisation)...
+            for path, subdirs, files in os.walk(os.path.normpath(tmp)):     # Alle Dateien in Pfad, inklusive Unterordnern, durchsuchen
+                for curpath in subdirs:
+                    newsubpath = self.prefix + separator + curpath
+                    os.rename(os.path.join(path, curpath), os.path.join(path, newsubpath))
+                for name in files:
+                    name = os.path.basename(name)
+                    os.rename(os.path.join(path, name), os.path.join(path, (self.prefix + separator + name))) # Präfix anfügen
+                os.system('cp -R ' + path + ' ' + os.path.basename(wikiDir))                     # Kopieren der Wiki-Einträge nach tmp
+            return 1
         else: # Wenn in Temp geschrieben wird...
-            try:
-                for path, subdirs, files in os.walk(os.path.normpath(wikiDir)):     # Alle Dateien in Pfad, inklusive Unterordnern, durchsuchen
-                    search_string = self.prefix + separator
-                    prefix_size = len(search_string)
-                    for name in files:
-                        if name[:prefix_size] == search_string:                                         # Wenn der Dateiname das Präfix des Kunden enthält...
-                            os.system('cp ' + os.path.join(path, name) + ' ' + tmp)                  # Kopieren der Wiki-Einträge nach tmp
-                            os.rename(os.path.join(tmp, name), os.path.join(tmp, name[search_size:])) # Präfix entfernen
-            except:
-                print('Translation went wrong.')
-                return 1
-        
+            for path, subdirs, files in os.walk(os.path.normpath(wikiDir)):     # Alle Dateien in Pfad, inklusive Unterordnern, durchsuchen
+                search_string = self.prefix + separator
+                prefix_size = len(search_string)
+                for name in files:
+                    if name[:prefix_size] == search_string:                                         # Wenn der Dateiname das Präfix des Kunden enthält...
+                        os.system('cp ' + os.path.join(path, name) + ' ' + tmp)                  # Kopieren der Wiki-Einträge nach tmp
+                        os.rename(os.path.join(tmp, name), os.path.join(tmp, name[search_size:])) # Präfix entfernen
+            print('Translation went wrong.')
+            return 1
+
         return 0
 
     def sync(self):
