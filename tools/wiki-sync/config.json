@@ -1,22 +1,16 @@
 {
 	"lokal": {
-		"wiki-pfad": "~/sync",
-		"prefix-separator": "-"
+		"wiki-pfad": "~/var/dokuwiki/data/pages/",
+		"prefix-separator": "_"
 	},
 	"kunden": [
 		{
 			"name": "Superkunde",
 			"prefix": "skd",
-			"wiki-pfad": "~/sync",
-			"host": "127.0.0.1",
-			"benutzer": "siteuser"
-		},
-		{
-			"name": "Bester Kunde",
-			"prefix": "bkd",
-			"wiki-pfad": "~/sync2",
+			"wiki-pfad": "~/var/dokuwiki/data/pages/host/",
+			"lokaler-unterordner": "host/",
 			"host": "192.168.178.84",
-			"benutzer": "siteuser"
+			"benutzer": "tenv"
 		}
 	]
 }
