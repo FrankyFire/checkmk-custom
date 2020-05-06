@@ -26,7 +26,6 @@
 # zu lokalen CheckMK Instanzen.    #
 ####################################
 
-import shutil       #Zum kopieren von Dateien
 import os           #Grundlegende OS-Funktionen
 import json         #Intepretieren der Konfigurationsdatei
 import commands     #Zum ausführen von Kommdos auf der Shell, hier zur Prüfung auf Existenz der SSH-Credentials
