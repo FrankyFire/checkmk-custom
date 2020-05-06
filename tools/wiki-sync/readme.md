@@ -1,6 +1,6 @@
 # Wiki-Sync for CheckMK
 
-Dies ist ein Tool zum Synchronisieren von Wiki-Seiten, die auf mehreren Sites verteilt sind.
+Dies ist ein Tool zum Synchronisieren von Wiki-Seiten, die auf mehrere Sites verteilt sind.
 Der Grundgedanke ist simpel: Von einem zentralen Service Desk aus werden mehrere Kundensysteme überwacht. Gibt es bekannte Probleme, können sowohl Kunden als auch Service-Desk-Mitarbeiter Einträge erstellen und bearbeiten. Wisyn übernimmt hierbei die Synchronisation zwischen den Sites und bietet gleichzeitig die Möglichkeit kundenspezifische Präfixe anzufügen.
 
 
@@ -14,7 +14,7 @@ Voraussetzungen:
 - Script wird als Site-User ausgeführt, der die Rechte hat im eigenen und im Wikiordner zu lesen und schreiben.
 
 ## Konfiguration
-Die Konfiguration geschieht über die config.json Datei. Hier gibt es 2 Abschnitte (kursive müssen nicht ausgefüllt, jedoch als leerer String vorhanden sein):
+Die Konfiguration geschieht über die config.json Datei. Hier gibt es 2 Abschnitte (_kursive_ Felder müssen nicht ausgefüllt, jedoch zumindest als leerer String vorhanden sein):
 - "lokal": Eigenschaften der Master-Site
     * "wiki-pfad": Lokaler Ordner, in welchen die Sites synchronisiert werden
     * _"prefix-separator"_: Falls das Kundeprefix vom Hostnamen mit einem Zeichen getrennt werden soll
