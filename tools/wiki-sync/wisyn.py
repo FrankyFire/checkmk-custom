@@ -26,7 +26,6 @@
 # zu lokalen CheckMK Instanzen.    #
 ####################################
 
-import shutil       #Zum kopieren von Dateien
 import os           #Grundlegende OS-Funktionen
 import json         #Intepretieren der Konfigurationsdatei
 import commands     #Zum ausführen von Kommdos auf der Shell, hier zur Prüfung auf Existenz der SSH-Credentials
@@ -34,23 +33,29 @@ import commands     #Zum ausführen von Kommdos auf der Shell, hier zur Prüfung
 customers = []
 
 # Standard-Werte:
-separator = '_'
+separator = ''
 confDir = os.path.join(os.getcwd(), 'config.json')
 wikiDir = os.path.expanduser('~/var/dokuwiki/data/pages/')	#Expanduser ersetzt ~ mit der Home-Directory
 
 # Eine Klasse Kunde, in der alle Kunden, welche in der Konfiguration angegeben wurden, hinterlegt werden.
 class Customer:
-    def __init__(self, name, prefix, dir, local_subdir, host, user):
-        self.name = name                                      # Kundenname
-        self.prefix = prefix                                  # Prefix in lokalem CheckMK
-        self.dir = dir                                        # Wiki-Ordner im Kundensystem
-        self.local_subdir = local_subdir                      # Unterordner in lokalem Wiki-Ordner
-        self.host = host                                      # IP/Hostname des Kundensystems
-        self.credentials = user + '@' + self.host             # Anmeldedaten für Remote-Host (benutzer@remote-host)
-        self.tmp = os.path.join(os.getcwd(), (prefix + '/'))  # TMP-Ordner und Kundenordner werden nach dem Präfix des Kunden benannt.
-    
+    def __init__(self, name, prefix, dir, host, user):
+        self.name = name                                                  # Kundenname
+        self.prefix = prefix                                              # Prefix in lokalem CheckMK
+        if dir != '':
+            self.dir = dir                                                # Wiki-Ordner im Kundensystem
+        else:                                                             # Default-Wert
+            self.dir = os.path.expanduser('~/var/dokuwiki/data/pages/')
+
+        self.host = host                                                  # IP/Hostname des Kundensystems
+        self.credentials = user + '@' + self.host                         # Anmeldedaten für Remote-Host (benutzer@remote-host)
+        if self.prefix != '':
+            self.tmp = os.path.join(os.getcwd(), (self.prefix + '/'))     # TMP-Ordner und Kundenordner werden nach dem Präfix des Kunden benannt.
+        else:
+            self.tmp = os.path.join(os.getcwd(), 'tmp/')                  # TMP-Ordner und Kundenordner werden 'tmp' genannt.
+
+
     def translate(self, to_temp):
-        # Achtung: Unfertig!
         
         ##################################################
         # Zweck: Anfügen/Entfernen der Kundenpräfixe     #
@@ -66,27 +71,41 @@ class Customer:
         if to_temp: # Wenn in lokale wikiDir geschrieben wird (eingehnde Synchronisation)...
             for path, subdirs, files in os.walk(os.path.normpath(self.tmp)):     # Alle Dateien in Pfad, inklusive Unterordner, durchsuchen
                 for curpath in subdirs:                                     # Unterordner umbenennen (Präfix anfügen)
-                    newsubpath = self.prefix + separator + curpath
-                    os.rename(os.path.join(path, curpath), os.path.join(path, newsubpath))
+                    newsubpath = os.path.join(path, (self.prefix + separator + curpath))
+                    curpath = os.path.join(path, curpath)
+
+                    os.rename(os.path.join(path, curpath), newsubpath)
                 for name in files:                                          # Dateien umbenennen (Präfix anfügen)
-                    name = os.path.basename(name)
-                    os.rename(os.path.join(path, name), os.path.join(path, (self.prefix + separator + name))) # Präfix anfügen
-            os.system('cp -R ' + self.tmp + ' ' + wikiDir) # Kopieren der Wiki-Einträge aus tmp in den realen Wiki-Ordner
+                    print(path)
+                    old_name = os.path.join(path, os.path.basename(name))
+                    new_name = os.path.join(path, (self.prefix + separator + name))
+
+                    if os.path.isfile(old_name):
+                        os.system('cp -p ' + old_name + ' ' + new_name) # Präfix anfügen
+                        os.system('rm ' + old_name)
+            if self.prefix != '':
+                os.system('cp -R -p ' + self.tmp + ' ' + wikiDir) # Kopieren der Wiki-Einträge aus tmp in den realen Wiki-Ordner
+            else:
+                os.system('cp -R -p ' + self.tmp + '* ' + wikiDir) # Kopieren der Wiki-Einträge aus tmp in den realen Wiki-Ordner
             return 1
         else: # Wenn in Temp geschrieben wird...
             os.system('mkdir ' + self.tmp)
             search_string = self.prefix + separator	      # Der Kundenpräfix, welcher gesucht und vor der synchronisation entfernt werden soll
+            prefix_size = len(search_string)
+
             for path, subdirs, files in os.walk(wikiDir):     # Alle Dateien in Pfad, inklusive Unterordnern, durchsuchen
-                prefix_size = len(search_string)
                 for curpath in subdirs:
                     if curpath[:prefix_size] == search_string:                                         # Wenn der Dateiname das Präfix des Kunden enthält...
                         if os.path.isdir(os.path.join(path, curpath)):		# Wenn aktuelles Element ein Pfad ist...
                             # Kopiere den gesamten Pfad und benenne dabei um...
-                            os.system('cp -R ' + os.path.join(path, curpath) + ' ' + self.tmp + curpath[prefix_size:])                  # Kopieren der Wiki-Einträge nach tmp
+                            os.system('cp -R -p ' + os.path.join(path, curpath) + ' ' + self.tmp + curpath[prefix_size:])                  # Kopieren der Wiki-Einträge nach tmp
                             # ...und durchsuche diesen Ordner noch nach dem Präfix
                         else:
                             # ...sonst nur die jeweilige Datei kopieren und dabei umbenennen.
-                            os.system('cp ' + os.path.join(path, curpath) + ' ' + self.tmp + curpath[prefix_size:])
+                            os.system('cp -p ' + os.path.join(path, curpath) + ' ' + self.tmp + curpath[prefix_size:])
+                for name in files:
+                    if name[:prefix_size] == search_string and os.path.isfile(os.path.join(path, name)):
+                        os.system('cp -p ' + os.path.join(path, name) + ' ' + self.tmp + name[prefix_size:])
             return 1
 
         return 0
@@ -109,16 +128,21 @@ class Customer:
             return 1
         
         # Bidirektionale synchronisation, erst vom Kunden zum ServiceDesk, danach umgekehrt.
-        os.system('rsync --update --numeric-ids -ravz' + ' ' + self.credentials + ':' + self.dir + ' ' + self.tmp)
+        if len(self.prefix) > 0:
+            cust.translate(0) # Temp-Ordner befüllen, um Änderungen von beiden Seiten zu akzeptieren.
+        else:
+            os.system('cp -R ' + wikiDir + ' ' + self.tmp)
 
+        os.system('rsync --numeric-ids -varuz' + ' ' + self.credentials + ':' + self.dir + ' ' + self.tmp)
+        print(self.tmp)
+        os.system('rsync --numeric-ids -varuz' + ' ' + self.tmp + ' ' + self.credentials + ':' + self.dir)
         # Rücksynchronisation 
-        if len(cust.prefix) > 0:
-                cust.translate(1)
-                os.system('rm -R ' + self.tmp)
-                cust.translate(0)
-        os.system('rsync --update --numeric-ids -ravz' + ' ' + self.tmp + ' ' + self.credentials + ':' + self.dir)
+        if len(self.prefix) > 0:
+            cust.translate(1)
+        else:
+            os.system('cp -R ' + self.tmp + '* ' + wikiDir)
 
-        os.system('rm -R ' + self.tmp)       # Temp Ordner wieder entfernen
+        os.system('rm -R ' + self.tmp)
 
         return 0
 
@@ -140,14 +164,17 @@ def readConfig():
 
             content = json.load(config)
 
-            # Lokale Konfiguration
-            separator = content["lokal"]["prefix-separator"]
-            wikiDir = os.path.expanduser(content["lokal"]["wiki-pfad"])		#Expanduser ersetzt ~ mit der Home-Directory
+            # Lokale Konfiguration - nur übernehmen wenn nicht leer
+            if content['lokal']['prefix-separator'] != '':
+                separator = content['lokal']['prefix-separator']
+
+            if content['lokal']['wiki-pfad'] != '':
+                wikiDir = os.path.expanduser(content['lokal']['wiki-pfad'])		#Expanduser ersetzt ~ mit der Home-Directory
 
             # Kundenkonfiguration: Für jeden Kunden...
-            for company in content["kunden"]:
+            for company in content['kunden']:
                 # ...wird die Liste erweitert mit den gefundenen Paramtern der Konfigurationsdatei.
-                customers.append(Customer(company["name"],company["prefix"],company["wiki-pfad"],company["lokaler-unterordner"],company["host"],company["benutzer"]))
+                customers.append(Customer(company['name'],company['prefix'],company['wiki-pfad'],company['host'],company['benutzer']))
     except IOError:
         print('ERROR: Config file inaccessible.')
         return 1
@@ -156,7 +183,7 @@ def readConfig():
         return 1
     return 0
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     ##################################################
     # Ablauf:                                        #
     #  1. Configdatei lesen                          #
@@ -165,8 +192,6 @@ if __name__ == "__main__":
     #  3. Re-Check.                                  #
     ##################################################
     
-    #ToDo: setupCron - Erstellung eines Cron Jobs zur Ausführung (zum Beispiel) alle 24h
-
     if readConfig():
         exit()
     
