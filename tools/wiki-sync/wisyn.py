@@ -35,7 +35,7 @@ customers = []
 
 # Standard-Werte:
 separator = ''
-confDir = os.path.join(os.getcwd(), 'config.json')
+confDir = os.path.join(os.path.abspath(__file__), 'config.json')
 wikiDir = os.path.expanduser('~/var/dokuwiki/data/pages/')	#Expanduser ersetzt ~ mit der Home-Directory
 
 # Eine Klasse Kunde, in der alle Kunden, welche in der Konfiguration angegeben wurden, hinterlegt werden.
@@ -51,9 +51,9 @@ class Customer:
         self.host = host                                                  # IP/Hostname des Kundensystems
         self.credentials = user + '@' + self.host                         # Anmeldedaten für Remote-Host (benutzer@remote-host)
         if self.prefix != '':
-            self.tmp = os.path.join(os.getcwd(), (self.prefix + '/'))     # TMP-Ordner und Kundenordner werden nach dem Präfix des Kunden benannt.
+            self.tmp = os.path.join(os.path.abspath(__file__), (self.prefix + '/'))     # TMP-Ordner und Kundenordner werden nach dem Präfix des Kunden benannt.
         else:
-            self.tmp = os.path.join(os.getcwd(), 'tmp/')                  # TMP-Ordner und Kundenordner werden 'tmp' genannt.
+            self.tmp = os.path.join(os.path.abspath(__file__), 'tmp/')                  # TMP-Ordner und Kundenordner werden 'tmp' genannt.
 
 
     def translate(self, to_temp):
