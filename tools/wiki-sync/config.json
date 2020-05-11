@@ -9,8 +9,16 @@
 			"prefix": "skd",
 			"wiki-pfad": "~/var/dokuwiki/data/pages/host/",
 			"lokaler-unterordner": "host/",
-			"host": "192.168.178.84",
-			"benutzer": "tenv"
+			"host": "127.0.0.1",
+			"benutzer": "siteuser"
+		},
+		{
+			"name": "Megakunde",
+			"prefix": "mkd",
+			"wiki-pfad": "~/var/dokuwiki/data/pages/host/",
+			"lokaler-unterordner": "host/",
+			"host": "127.0.0.1",
+			"benutzer": "siteuser"
 		}
 	]
 }
