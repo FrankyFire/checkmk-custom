@@ -20,7 +20,7 @@ Die Konfiguration geschieht über die config.json Datei. Hier gibt es 2 Abschnit
         >~/var/dokuwiki/data/pages/
     * _"prefix-separator"_: Falls das Kundeprefix vom Hostnamen mit einem Zeichen getrennt werden soll
 - "kunden": Alle Kundensysteme
-    * _"name"_: Name des Kunden. Derzeit nicht verwendet, dient hauptsächlich der Übersichtlichkeit.
+    * _"name"_: Name des Kunden. Derzeit nicht verwendet, dient hauptsächlich der Übersichtlichkeit und benutzerfreundlichen Fehlermeldung.
     * _"prefix"_: Präfix, welches vor den Hostnamen angehangen werden soll -> Wird gleichzeitig als Unterordner im lokalen Wiki verwendet
     * _"wiki-pfad"_: Pfad des Wiki auf dem Kundensystem. Wenn leer, wird der Default verwendet.
         >~/var/dokuwiki/data/pages/

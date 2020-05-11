@@ -188,11 +188,11 @@ if __name__ == '__main__':
     if readConfig():
         exit()
     
-#    try:
-    for cust in customers:                
-        if cust.sync():
-            exit('ERROR: Could not sync ' + cust.name + ' to local directory.\nProgram will still try to sync other customers.')
-#    except:
-#        exit('ERROR: Not able to sync files. Please check your customers directory and your config.')
+    try:
+        for cust in customers:
+            if cust.sync():
+                exit('ERROR: Could not sync ' + cust.name + ' to local directory.\nProgram will still try to sync other customers.')
+    except:
+        exit('ERROR: Not able to sync files. Please check your customers directory and your config.')
     
     print('\nSuccess!\n')
