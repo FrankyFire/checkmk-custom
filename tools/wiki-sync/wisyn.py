@@ -27,7 +27,7 @@
 # zu lokalen CheckMK Instanzen.    #
 ####################################
 
-import os           #Grundlegende OS-Funktionen
+import sys, os      #Grundlegende OS-Funktionen
 import json         #Intepretieren der Konfigurationsdatei
 import commands     #Zum ausführen von Kommdos auf der Shell, hier zur Prüfung auf Existenz der SSH-Credentials
 
@@ -35,7 +35,7 @@ customers = []
 
 # Standard-Werte:
 separator = ''
-confDir = os.path.join(os.path.abspath(__file__), 'config.json')
+confDir = os.path.join(os.path.dirname(sys.argv[0]), 'config.json')
 wikiDir = os.path.expanduser('~/var/dokuwiki/data/pages/')	#Expanduser ersetzt ~ mit der Home-Directory
 
 # Eine Klasse Kunde, in der alle Kunden, welche in der Konfiguration angegeben wurden, hinterlegt werden.
@@ -51,9 +51,9 @@ class Customer:
         self.host = host                                                  # IP/Hostname des Kundensystems
         self.credentials = user + '@' + self.host                         # Anmeldedaten für Remote-Host (benutzer@remote-host)
         if self.prefix != '':
-            self.tmp = os.path.join(os.path.abspath(__file__), (self.prefix + '/'))     # TMP-Ordner und Kundenordner werden nach dem Präfix des Kunden benannt.
+            self.tmp = os.path.join(os.path.dirname(sys.argv[0]), (self.prefix + '/'))     # TMP-Ordner und Kundenordner werden nach dem Präfix des Kunden benannt.
         else:
-            self.tmp = os.path.join(os.path.abspath(__file__), 'tmp/')                  # TMP-Ordner und Kundenordner werden 'tmp' genannt.
+            self.tmp = os.path.join(os.path.dirname(sys.argv[0]), 'tmp/')                  # TMP-Ordner und Kundenordner werden 'tmp' genannt.
 
 
     def translate(self, to_temp):
@@ -75,7 +75,7 @@ class Customer:
                     newsubpath = os.path.join(path, (self.prefix + separator + curpath))
                     curpath = os.path.join(path, curpath)
 
-                    os.rename(os.path.join(path, curpath), newsubpath)
+                    os.rename(curpath, newsubpath)
                 for name in files:                                              # Dateien umbenennen (Präfix anfügen)
                     print(path)
                     old_name = os.path.join(path, os.path.basename(name))
@@ -132,8 +132,8 @@ class Customer:
             cust.translate(0) # Temp-Ordner befüllen, um Änderungen von beiden Seiten zu akzeptieren.
             os.system('rsync --numeric-ids -aruz' + ' ' + self.credentials + ':' + self.dir + ' ' + self.tmp)
             os.system('rsync --numeric-ids -aruz' + ' ' + self.tmp + ' ' + self.credentials + ':' + self.dir)
-            os.system('rm -R ' + self.tmp)
             cust.translate(1)
+            os.system('rm -R ' + self.tmp)
         else:
             os.system('rsync --numeric-ids -aruz' + ' ' + self.credentials + ':' + self.dir + ' ' + wikiDir)
             os.system('rsync --numeric-ids -aruz' + ' ' + wikiDir + ' ' + self.credentials + ':' + self.dir)
@@ -189,11 +189,11 @@ if __name__ == '__main__':
     if readConfig():
         exit()
     
-    try:
-        for cust in customers:                
-            if cust.sync():
-                exit('ERROR: Could not sync ' + cust.name + ' to local directory.\nProgram will still try to sync other customers.')
-    except:
-        exit('ERROR: Not able to sync files. Please check your customers directory and your config.')
+#    try:
+    for cust in customers:                
+        if cust.sync():
+            exit('ERROR: Could not sync ' + cust.name + ' to local directory.\nProgram will still try to sync other customers.')
+#    except:
+#        exit('ERROR: Not able to sync files. Please check your customers directory and your config.')
     
     print('\nSuccess!\n')
