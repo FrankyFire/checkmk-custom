@@ -1,22 +1,23 @@
 #! python
 # coding=utf-8
 
-####################################
-############# _ ####################
-### __      _(_)___ _   _ _ __ #####
-### \ \ /\ / / / __| | | | '_ \ ####
-#### \ V  V /| \__ \ |_| | | | | ###
-##### \_/\_/ |_|___/\__, |_| |_| ###
-################### |___/ ##########
-####################################
-#    Wiki-Sync for Service Desks   #
-####################################
-#                                  #
-# H4x0r: Sebastian Arndt           #
-# D4t3: Mai 2020                   #
-# D0cum3nt4t10n: Pfad/zur/Doku.pdf #
-#                                  #
-####################################
+#######################################################################################
+################################### _ #################################################
+######################### __      _(_)___ _   _ _ __ ##################################
+######################### \ \ /\ / / / __| | | | '_ \ #################################
+########################## \ V  V /| \__ \ |_| | | | | ################################
+########################### \_/\_/ |_|___/\__, |_| |_| ################################
+######################################### |___/ #######################################
+#######################################################################################
+#######################    Wiki-Sync for Service Desks   ##############################
+#######################################################################################
+#                                                                                     #
+# H4x0r: Sebastian Arndt                                                              #
+# D4t3: Mai 2020                                                                      #
+# D0cum3nt4t10n:                                                                      #
+# https://github.com/FrankyFire/checkmk-custom/tree/master/tools/wiki-sync/readme.md  #
+#                                                                                     #
+#######################################################################################
 
 ####################################
 # Skript zur Ausführung im Service #
@@ -68,38 +69,37 @@ class Customer:
         # - 0: Erfolg.                                   #
         ##################################################
         
-        if to_temp: # Wenn in lokale wikiDir geschrieben wird (eingehnde Synchronisation)...
-            for path, subdirs, files in os.walk(os.path.normpath(self.tmp)):     # Alle Dateien in Pfad, inklusive Unterordner, durchsuchen
-                for curpath in subdirs:                                     # Unterordner umbenennen (Präfix anfügen)
+        if to_temp: # Wenn in lokale wikiDir geschrieben wird (eingehende Synchronisation)...
+            for path, subdirs, files in os.walk(os.path.normpath(self.tmp)):    # Alle Dateien in Pfad, inklusive Unterordner, durchsuchen
+                for curpath in subdirs:                                         # Unterordner umbenennen (Präfix anfügen)
                     newsubpath = os.path.join(path, (self.prefix + separator + curpath))
                     curpath = os.path.join(path, curpath)
 
                     os.rename(os.path.join(path, curpath), newsubpath)
-                for name in files:                                          # Dateien umbenennen (Präfix anfügen)
+                for name in files:                                              # Dateien umbenennen (Präfix anfügen)
                     print(path)
                     old_name = os.path.join(path, os.path.basename(name))
                     new_name = os.path.join(path, (self.prefix + separator + name))
 
-                    if os.path.isfile(old_name):
-                        os.system('cp -p ' + old_name + ' ' + new_name) # Präfix anfügen
+                    if os.path.isfile(old_name):                                # Um Zeitstempel beizubehalten wird cp -p verwendet.
+                        os.system('cp -p ' + old_name + ' ' + new_name)         # Präfix anfügen
                         os.system('rm ' + old_name)
             if self.prefix != '':
-                os.system('cp -R -p ' + self.tmp + ' ' + wikiDir) # Kopieren der Wiki-Einträge aus tmp in den realen Wiki-Ordner
+                os.system('cp -R -p ' + self.tmp + ' ' + wikiDir)               # Kopieren der Wiki-Einträge aus tmp in den realen Wiki-Ordner
             else:
-                os.system('cp -R -p ' + self.tmp + '* ' + wikiDir) # Kopieren der Wiki-Einträge aus tmp in den realen Wiki-Ordner
+                os.system('cp -R -p ' + self.tmp + '* ' + wikiDir)              # Variante für leeres Präfix
             return 1
         else: # Wenn in Temp geschrieben wird...
             os.system('mkdir ' + self.tmp)
-            search_string = self.prefix + separator	      # Der Kundenpräfix, welcher gesucht und vor der synchronisation entfernt werden soll
+            search_string = self.prefix + separator	                            # Der Kundenpräfix, welcher gesucht und vor der synchronisation entfernt werden soll
             prefix_size = len(search_string)
 
-            for path, subdirs, files in os.walk(wikiDir):     # Alle Dateien in Pfad, inklusive Unterordnern, durchsuchen
+            for path, subdirs, files in os.walk(wikiDir):                       # Alle Dateien in Pfad, inklusive Unterordnern, durchsuchen
                 for curpath in subdirs:
-                    if curpath[:prefix_size] == search_string:                                         # Wenn der Dateiname das Präfix des Kunden enthält...
-                        if os.path.isdir(os.path.join(path, curpath)):		# Wenn aktuelles Element ein Pfad ist...
+                    if curpath[:prefix_size] == search_string:                  # Wenn der Dateiname das Präfix des Kunden enthält...
+                        if os.path.isdir(os.path.join(path, curpath)):		    # Wenn aktuelles Element ein Pfad ist...
                             # Kopiere den gesamten Pfad und benenne dabei um...
-                            os.system('cp -R -p ' + os.path.join(path, curpath) + ' ' + self.tmp + curpath[prefix_size:])                  # Kopieren der Wiki-Einträge nach tmp
-                            # ...und durchsuche diesen Ordner noch nach dem Präfix
+                            os.system('cp -R -p ' + os.path.join(path, curpath) + ' ' + self.tmp + curpath[prefix_size:]) # Kopieren der Wiki-Einträge nach tmp
                         else:
                             # ...sonst nur die jeweilige Datei kopieren und dabei umbenennen.
                             os.system('cp -p ' + os.path.join(path, curpath) + ' ' + self.tmp + curpath[prefix_size:])
@@ -130,19 +130,13 @@ class Customer:
         # Bidirektionale synchronisation, erst vom Kunden zum ServiceDesk, danach umgekehrt.
         if len(self.prefix) > 0:
             cust.translate(0) # Temp-Ordner befüllen, um Änderungen von beiden Seiten zu akzeptieren.
-        else:
-            os.system('cp -R ' + wikiDir + ' ' + self.tmp)
-
-        os.system('rsync --numeric-ids -varuz' + ' ' + self.credentials + ':' + self.dir + ' ' + self.tmp)
-        print(self.tmp)
-        os.system('rsync --numeric-ids -varuz' + ' ' + self.tmp + ' ' + self.credentials + ':' + self.dir)
-        # Rücksynchronisation 
-        if len(self.prefix) > 0:
+            os.system('rsync --numeric-ids -aruz' + ' ' + self.credentials + ':' + self.dir + ' ' + self.tmp)
+            os.system('rsync --numeric-ids -aruz' + ' ' + self.tmp + ' ' + self.credentials + ':' + self.dir)
+            os.system('rm -R ' + self.tmp)
             cust.translate(1)
         else:
-            os.system('cp -R ' + self.tmp + '* ' + wikiDir)
-
-        os.system('rm -R ' + self.tmp)
+            os.system('rsync --numeric-ids -aruz' + ' ' + self.credentials + ':' + self.dir + ' ' + wikiDir)
+            os.system('rsync --numeric-ids -aruz' + ' ' + wikiDir + ' ' + self.credentials + ':' + self.dir)
 
         return 0
 
