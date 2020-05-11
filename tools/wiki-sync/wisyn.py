@@ -77,7 +77,6 @@ class Customer:
 
                     os.rename(curpath, newsubpath)
                 for name in files:                                              # Dateien umbenennen (Präfix anfügen)
-                    print(path)
                     old_name = os.path.join(path, os.path.basename(name))
                     new_name = os.path.join(path, (self.prefix + separator + name))
 
