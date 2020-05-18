@@ -41,6 +41,10 @@ Hierzu muss unter _Host & Service Parameters -> Monitoring Configuration -> Vari
 Hier wird die Action sowie der Kundenordner ausgewählt.
 Die Wiki-Seiten sind nun über das Kontextmenü neben Host oder Service abrufbar.
 
+Damit die Kunden jeweils auf ihr eigenes Wiki zugreifen, müssen die Globalen Einstellungen der jeweiligen Site angepasst werden.
+Dies geschieht unter _Distributed Monitoring -> Site Specific Global Configuration [Chip Symbol] -> User Interface -> Custom icons and actions_
+Hier dann den Host- und Sitenamen des jewiligen Kunden eintragen.
+
 ## Wisyn Konfigurieren
 Die Konfiguration des Tools geschieht über die config.json Datei.
 Hier gibt es 2 Abschnitte (_kursive_ Felder müssen nicht ausgefüllt, jedoch zumindest als leerer String vorhanden sein):
