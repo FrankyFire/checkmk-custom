@@ -33,8 +33,9 @@ Um hierbei automatisch Host- und Servicename einzufügen, wird folgende Action b
 
     https://hostname.domain/sitename/wiki/doku.php?id=kundenprefix:$HOSTNAME$:$SERVICEDESC$
 
-Wisyn verwendet das Kundenprefix als Unterordner im Wiki-Verzeichnis.
+Wisyn verwendet das Kundenprefix als Unterordner im Wiki-Verzeichnis, wenn dies in der Konfiguration angegeben wird.
 So kann ausgeschlossen werden, dass Kunden Informationen sehen, die nicht zu ihrer Site gehören.
+Allerdings sind daher Actions für jeden Kunden extra anzulegen. .
 
 Anschließend ist zu konfigurieren, in welchem Kontextmenü die Action auftauchen soll.
 Hierzu muss unter _Host & Service Parameters -> Monitoring Configuration -> Various -> Custom icons or actions for hosts/services in status GUI_ eine neue Regel angelegt werden.
